@@ -105,14 +105,25 @@ void save_raw_data(const char *filename, const char *raw_data) {
 
 
 void save_processed_data_csv(const char *filename, float temperature, float humidity) {
-    FILE *file = fopen(filename, "w");
+    // Check if the file already exists
+    FILE *file = fopen(filename, "r");
+    int file_exists = (file != NULL);
+    if (file) {
+        fclose(file);
+    }
+
+    // Open the file in append mode
+    file = fopen(filename, "a");
     if (!file) {
         perror("Error opening file for processed data");
         exit(EXIT_FAILURE);
     }
 
-    // Write CSV header
-    fprintf(file, "Temperature (°C),Humidity (%%)\n");
+    // If the file is new, write the CSV header
+    if (!file_exists) {
+        fprintf(file, "Temperature (°C),Humidity (%%)\n");
+    }
+
     // Write data
     fprintf(file, "%.2f,%.2f\n", temperature, humidity);
     fclose(file);
